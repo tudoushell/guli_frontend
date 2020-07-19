@@ -136,6 +136,18 @@ export default {
     this.listSubjectCate();
     this.listTeacher();
   },
+  watch: {
+    //监听
+    $route(from, to) {
+      this.course = {
+        subjectParentId: "",
+        subjectId: "",
+        cover: "",
+        description: ""
+      };
+      this.$refs.toastuiEditor.invoke("setMarkdown", this.course.description);
+    }
+  },
   methods: {
     //获取课程信息
     getCourseInfo() {

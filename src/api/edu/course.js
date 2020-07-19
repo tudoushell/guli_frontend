@@ -1,6 +1,19 @@
 import request from "@/utils/request";
 
 export default {
+  deleteCourseById(id) {
+    return request({
+      url: `/edu-service/edu-course/${id}`,
+      method: "delete"
+    });
+  },
+  listCourseByCondition(page, row, CourseQueryDto) {
+    return request({
+      url: `/edu-service/edu-course/${page}/${row}`,
+      method: "post",
+      data: CourseQueryDto
+    });
+  },
   publishCourse(id) {
     return request({
       url: `/edu-service/edu-course/publish/${id}`,
