@@ -5,28 +5,68 @@
       <el-step title="创建课程大纲" description></el-step>
       <el-step title="提交审核" description></el-step>
     </el-steps>
+    <div class="ccInfo">
+      <img :src="publishCourse.cover" />
+      <div class="main">
+        <h2>{{ publishCourse.title }}</h2>
+        <p class="gray">
+          <span>共{{ publishCourse.lessonNum }}课时</span>
+        </p>
+        <p>
+          <span
+            >所属分类：{{ publishCourse.mainSubject }} —
+            {{ publishCourse.subSubject }}</span
+          >
+        </p>
+        <p>课程讲师：{{ publishCourse.teacherName }}</p>
+        <h3 class="red">￥{{ publishCourse.price }}</h3>
+      </div>
+    </div>
+
     <div class="button-style">
-      <el-button style="text-align: center" @click="previous">返回修改</el-button>
+      <el-button style="text-align: center" @click="previous"
+        >返回修改</el-button
+      >
       <el-button style="text-align: center" @click="next">发布课程</el-button>
     </div>
   </div>
 </template>
 
 <script>
+import courseApi from "@/api/edu/course";
 export default {
   data() {
     return {
-      active: 3
+      active: 3,
+      courseId: "",
+      publishCourse: {}
     };
   },
-  created() {},
+  created() {
+    if (this.$route.params && this.$route.params.id) {
+      this.courseId = this.$route.params.id;
+      this.getPublishCourse(this.courseId);
+    }
+  },
   methods: {
+    //获取即将发布的课程信息
+    getPublishCourse(id) {
+      courseApi.getPublishCourseInfo(id).then(response => {
+        this.publishCourse = response.data;
+      });
+    },
     previous() {
-      this.$router.go(-1)
+      this.$router.go(-1);
     },
     next() {
-      this.$router.push({
-        path: "/edu/course/list"
+      courseApi.publishCourse(this.courseId).then(response => {
+        this.$message({
+          type: "success",
+          message: "发布成功!"
+        });
+        this.$router.push({
+          path: "/edu/course/list"
+        });
       });
     }
   }
@@ -40,5 +80,54 @@ export default {
 .button-style {
   margin-top: 35px;
   text-align: center;
+}
+.ccInfo {
+  background: #f5f5f5;
+  padding: 20px;
+  overflow: hidden;
+  border: 1px dashed #ddd;
+  margin-bottom: 40px;
+  position: relative;
+  margin-top: 50px;
+}
+.ccInfo img {
+  background: #d6d6d6;
+  width: 500px;
+  height: 278px;
+  display: block;
+  float: left;
+  border: none;
+}
+.ccInfo .main {
+  margin-left: 520px;
+}
+.ccInfo .main h2 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  line-height: 1;
+  font-weight: normal;
+}
+.ccInfo .main p {
+  margin-bottom: 10px;
+  word-wrap: break-word;
+  line-height: 24px;
+  max-height: 48px;
+  overflow: hidden;
+}
+.ccInfo .main p {
+  margin-bottom: 10px;
+  word-wrap: break-word;
+  line-height: 24px;
+  max-height: 48px;
+  overflow: hidden;
+}
+.ccInfo .main h3 {
+  left: 540px;
+  bottom: 20px;
+  line-height: 1;
+  font-size: 28px;
+  color: #d32f24;
+  font-weight: normal;
+  position: absolute;
 }
 </style>

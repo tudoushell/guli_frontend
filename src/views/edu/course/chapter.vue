@@ -306,7 +306,7 @@ export default {
     },
     next() {
       this.$router.push({
-        path: "/edu/course/publish/1"
+        path: `/edu/course/publish/${this.courseId}`
       });
     }
   }
