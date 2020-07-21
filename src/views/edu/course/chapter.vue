@@ -86,23 +86,45 @@
       </el-dialog>
       <!-- 小节弹窗 -->
       <el-dialog
-        :title="isShowAddOrUpdateSectionChapter ? '添加小节' : '修改小节'"
+        :title="isShowAddOrUpdateSectionChapter ? '添加课时' : '修改课时'"
         :visible.sync="sectionDialog"
       >
         <el-form :model="sectionChapter">
-          <el-form-item label="小节名称">
+          <el-form-item label="课时名称">
             <el-input
               v-model="sectionChapter.title"
               autocomplete="off"
             ></el-input>
           </el-form-item>
-          <el-form-item label="顺序">
+          <el-form-item label="课时排序">
             <el-input-number
               v-model="sectionChapter.sort"
               controls-position="left"
               :min="1"
               :max="100"
             ></el-input-number>
+          </el-form-item>
+          <el-form-item label="是否免费">
+            <el-radio v-model="sectionChapter.isFree" label="1">免费</el-radio>
+            <el-radio v-model="sectionChapter.isFree" label="0">收费</el-radio>
+          </el-form-item>
+          <el-form-item label="上传视频">
+            <el-upload
+              class="upload-demo"
+              :action="baseURL + '/vod'"
+              :on-remove="handleRemove"
+              :before-remove="beforeRemove"
+              :on-success="fileUploadSuccess"
+              name="file"
+              :limit="1"
+              :on-exceed="handleExceed"
+              :file-list="fileList"
+            >
+              <el-button size="small" type="primary">点击上传</el-button>
+              <!-- <div slot="tip" class="el-upload__tip">
+                只能上传jpg/png文件，且不超过500kb
+              </div> -->
+            </el-upload>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -149,7 +171,9 @@ export default {
       },
       //用于显示添加或修改小节的名称
       isShowAddOrUpdateSectionChapter: true,
-      isShowAddOrUpdateChapter: true
+      isShowAddOrUpdateChapter: true,
+      fileList: [],
+      baseURL: process.env.BASE_API
     };
   },
   created() {
@@ -159,6 +183,20 @@ export default {
     }
   },
   methods: {
+    //文件上传成功
+    fileUploadSuccess(response, file, fileList) {
+      //获取上传成功的视频ID
+      this.sectionChapter.videoSourceId = response.data;
+      this.sectionChapter.videoOriginalName = file.name.split(".")[0];
+      this.sectionChapter.size = file.size;
+      console.log(response.data)
+    },
+    //文件超出个数限制时
+    handleExceed(files, fileList) {
+      if (fileList.lenght > 1) {
+        this.$message.warning("最多只能上传一个文件！");
+      }
+    },
     //弹出章节信息
     eidtorChapter(chapterId) {
       this.chapterDto.id = chapterId;
