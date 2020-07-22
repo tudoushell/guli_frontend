@@ -105,8 +105,10 @@
             ></el-input-number>
           </el-form-item>
           <el-form-item label="是否免费">
-            <el-radio v-model="sectionChapter.isFree" label="1">免费</el-radio>
-            <el-radio v-model="sectionChapter.isFree" label="0">收费</el-radio>
+            <el-radio-group v-model="sectionChapter.isFree">
+              <el-radio :label="true">免费</el-radio>
+              <el-radio :label="false">收费</el-radio>
+            </el-radio-group>
           </el-form-item>
           <el-form-item label="上传视频">
             <el-upload
@@ -183,13 +185,31 @@ export default {
     }
   },
   methods: {
+    //从阿里ov删除视频
+    handleRemove() {
+      videoApi
+        .deleteAliVideo(this.sectionChapter.videoSourceId)
+        .then(response => {
+          this.$message({
+            type: "success",
+            message: "删除成功！"
+          });
+          this.fileList = [];
+          this.sectionChapter.videoSourceId = "";
+          this.sectionChapter.videoOriginalName = "";
+          this.sectionChapter.size = 0;
+        });
+    },
+    // 再删除视频之前弹窗
+    beforeRemove(file, fileList) {
+      return this.$confirm("是否删除" + file.name);
+    },
     //文件上传成功
     fileUploadSuccess(response, file, fileList) {
       //获取上传成功的视频ID
       this.sectionChapter.videoSourceId = response.data;
-      this.sectionChapter.videoOriginalName = file.name.split(".")[0];
+      this.sectionChapter.videoOriginalName = file.name;
       this.sectionChapter.size = file.size;
-      console.log(response.data)
     },
     //文件超出个数限制时
     handleExceed(files, fileList) {
@@ -231,6 +251,17 @@ export default {
       this.isShowAddOrUpdateSectionChapter = false;
       videoApi.getVideo(sectionChapterId).then(response => {
         this.sectionChapter = response.data;
+        //小节显示视频
+        if (
+          this.sectionChapter.videoOriginalName != null &&
+          this.sectionChapter.videoOriginalName != ""
+        ) {
+          this.fileList = [
+            {
+              name: this.sectionChapter.videoOriginalName
+            }
+          ];
+        }
       });
     },
     //删除小节
@@ -270,13 +301,14 @@ export default {
             title: "",
             sort: 1
           };
+          this.fileList = [];
         });
       } else {
         //修改小节信息
         videoApi.updateVideo(this.sectionChapter).then(response => {
           this.$message({
             type: "success",
-            message: "小节成功!"
+            message: "修改小节成功!"
           });
           this.sectionDialog = false;
           this.listChapter();
@@ -287,6 +319,7 @@ export default {
             title: "",
             sort: 1
           };
+          this.fileList = [];
         });
       }
     },

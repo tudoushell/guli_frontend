@@ -1,5 +1,11 @@
 import request from "@/utils/request";
 export default {
+  deleteAliVideo(id) {
+    return request({
+      url: `/vod/${id}`,
+      method: "delete"
+    });
+  },
   updateVideo(eduVideo) {
     return request({
       url: "/edu-service/edu-video",
